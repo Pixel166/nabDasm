@@ -29,7 +29,6 @@ nabDasm::nabDasm(QString fileIn, QString fileOut)
 
         if(bin.mid(0, 5) == QByteArray("amber"))
         {
-              QString hexout;
               unsigned int fileSize = bin.size();
               unsigned int contentSize = bin.mid(5, 8).toInt(NULL, 16);
               f2.write(";Size of file : 0x"+hexOutput(fileSize)+"\n");
@@ -101,46 +100,30 @@ nabDasm::nabDasm(QString fileIn, QString fileOut)
                           d += 4;
                           unsigned int e = getUInt32(bin.mid(d, 4));
                           unsigned int len = (e - 1) / 4;
-                          /*
-                          $str = "";
-                          for($j=0; $j<$len; $j++)
-                          {
-                              $ch = ord($c[$a+4+$j]);
-                              $str .= "\x".str_pad(dechex($ch), 2, "0", STR_PAD_LEFT);
-                          }
-                          */
-                      //    qDebug() <<  "ignore entry("+QString::number(u)+", "+QString::number(len)+")";
-                          f2.write("0x"+hexOutput(d-4)+"; Const_"+hexOutput(c++, 4)+"; ignore entry("+QString::number(u).toAscii()+", "+QString::number(len).toAscii()+"); \n");
+
+                          f2.write("0x"+hexOutput(d-4)+"; Const_"+hexOutput(c++, 4)+"; ignore entry("+QString::number(u).toAscii()+", "+QString::number(len).toAscii()+"); \""+displayBytes(bin.mid(d+4, len))+"\"\n");
                           c--;
                           d += 4 + len;
                       }
                       else if((u == 92) || (u == 96))
                       {
-                          /*
-                          $str = "";
-                          for($j=0; $j<$u; $j++)
-                          {
-                              $ch = ord($c[$a+4+$j]);
-                              $str .= "\x".str_pad(dechex($ch), 2, "0", STR_PAD_LEFT);
-                          }
-                          */
-                      //    qDebug() <<   "skip bytes("+QString::number(u)+")";
-                          f2.write("0x"+hexOutput(d-4)+"; Const_"+hexOutput(c++, 4)+"; skip bytes("+QString::number(u).toAscii()+"); \n");
+
+                          f2.write("0x"+hexOutput(d-4)+"; Const_"+hexOutput(c++, 4)+"; skip bytes("+QString::number(u).toAscii()+"); \""+displayBytes(bin.mid(d+4, u))+"\"\n");
                           c--;
                           d += 4 + u;
 
                       }
                       else if((u == 32) || (u == 12))
                       {
-                      //    qDebu   g() <<    "entry("+QString::number(u)+")";
+
                           f2.write("0x"+hexOutput(d)+"; Const_"+hexOutput(c++, 4)+"; entry("+QString::number(u).toAscii()+"); \n");
                           d += 4;
                       }
-                        else
+                      else
                       {
-                      //  qDebug() << "Erreur at " << d << " => " << s.setNum(entry, 16);
-                        break;
-                    }
+                          break;
+                      }
+
                   }
               }
               f2.write("\n");
